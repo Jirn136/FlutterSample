@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sample/models/house_people.dart';
+import 'package:flutter_sample/screens/tenant_detail.dart';
+import 'package:flutter_sample/utils/common_widgets.dart';
 import 'package:flutter_sample/utils/constants.dart';
 import 'package:flutter_sample/utils/custom_items.dart';
 import 'package:flutter_sample/utils/shared_preferences.dart';
@@ -69,19 +71,7 @@ class _ListScreenState extends State<ListScreen> {
         ],
       ),
       body: housePeopleList.isNotEmpty ? listItems() : emptyView(),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SizedBox(
-          width: 60,
-          height: 60,
-          child: FloatingActionButton(
-            backgroundColor: Colors.green,
-            shape: const CircleBorder(),
-            onPressed: () {},
-            child: const Icon(Icons.add, size: 28, color: Colors.white),
-          ),
-        ),
-      ),
+      floatingActionButton: fabButton(context),
     );
   }
 
@@ -91,7 +81,8 @@ class _ListScreenState extends State<ListScreen> {
         var people = housePeopleList[position];
         return GestureDetector(
           onTap: () {
-            customToast(people.amount.toString());
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const TenantDetail()));
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -150,23 +141,6 @@ class _ListScreenState extends State<ListScreen> {
         );
       },
       itemCount: housePeopleList.length,
-    );
-  }
-
-  Widget emptyView() {
-    return SafeArea(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/no_data.jpg',
-              height: 250,
-              width: 250,
-            ),
-          ],
-        ),
-      ),
     );
   }
 

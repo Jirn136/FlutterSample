@@ -2,7 +2,6 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sample/utils/constants.dart';
 import 'package:flutter_sample/utils/custom_items.dart';
-import 'package:flutter_sample/screens/list_screen.dart';
 import 'package:flutter_sample/utils/shared_preferences.dart';
 
 class Register extends StatefulWidget {
@@ -248,7 +247,8 @@ class _RegisterState extends State<Register> {
                               prefs.save(Constants.password, _password);
                               prefs.save(Constants.location, _location);
 
-                              Navigator.of(context).pushReplacementNamed("/list_screen");
+                              Navigator.of(context)
+                                  .pushReplacementNamed("/list_screen");
                             }
                           },
                           child: const Text(
