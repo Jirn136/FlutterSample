@@ -102,7 +102,8 @@ class _TenantDetailState extends State<TenantDetail> {
             padding: const EdgeInsets.only(right: 10),
             child: IconButton(
                 onPressed: () {
-                  customToast('Coming soon');
+                  Navigator.of(context).pushNamed('/tenant_data',
+                      arguments: {'house_number': 1});
                 },
                 icon: const Icon(
                   Icons.add,

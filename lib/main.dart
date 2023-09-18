@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sample/screens/list_screen.dart';
 import 'package:flutter_sample/screens/login.dart';
 import 'package:flutter_sample/screens/register.dart';
+import 'package:flutter_sample/screens/tenant_data.dart';
 import 'package:flutter_sample/screens/tenant_detail.dart';
 import 'package:flutter_sample/screens/wrapper.dart';
 import 'package:flutter_sample/utils/shared_preferences.dart';
@@ -16,7 +17,8 @@ void main() async {
       "/register": (_) => const Register(),
       "/login": (_) => const Login(),
       "/list_screen": (_) => const ListScreen(),
-      "/tenant_detail": (_) => const TenantDetail()
+      "/tenant_detail": (_) => const TenantDetail(),
+      "/tenant_data":(_) => const TenantData()
     },
   ));
 }
