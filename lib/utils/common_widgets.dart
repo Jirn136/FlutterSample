@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_sample/screens/list_screen.dart';
 
 Widget emptyView() {
   return SafeArea(
@@ -18,7 +17,7 @@ Widget emptyView() {
   );
 }
 
-Widget fabButton(BuildContext context) {
+Widget fabButton(BuildContext context, VoidCallback callback) {
   return Padding(
     padding: const EdgeInsets.all(16.0),
     child: SizedBox(
@@ -28,8 +27,7 @@ Widget fabButton(BuildContext context) {
         backgroundColor: Colors.green,
         shape: const CircleBorder(),
         onPressed: () {
-          if (context is ListScreen) {}
-        },
+          callback();},
         child: const Icon(Icons.add, size: 28, color: Colors.white),
       ),
     ),

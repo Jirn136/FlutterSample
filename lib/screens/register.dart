@@ -246,6 +246,7 @@ class _RegisterState extends State<Register> {
                               prefs.save(Constants.age, _age);
                               prefs.save(Constants.password, _password);
                               prefs.save(Constants.location, _location);
+                              prefs.save(Constants.isChecked, true);
 
                               Navigator.of(context)
                                   .pushReplacementNamed("/list_screen");

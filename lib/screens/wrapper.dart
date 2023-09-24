@@ -16,8 +16,8 @@ class Wrapper extends StatelessWidget {
     bool isChecked = pref.getBoolean(Constants.isChecked);
     return Provider(
         create: (context) => AppDatabase(),
-        child: const TenantData()
-        // isChecked ? const ListScreen() : const Login()
+        child:
+        isChecked ? const ListScreen() : const Login()
     );
   }
 }

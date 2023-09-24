@@ -4,14 +4,9 @@ import 'package:flutter_sample/utils/custom_items.dart';
 
 import '../models/tenant_details.dart';
 
-class TenantDetail extends StatefulWidget {
-  const TenantDetail({super.key});
+class TenantDetailList extends StatelessWidget {
+  TenantDetailList({super.key});
 
-  @override
-  State<TenantDetail> createState() => _TenantDetailState();
-}
-
-class _TenantDetailState extends State<TenantDetail> {
   final _dataRow = List.of([
     TenantDetails(
         timeStamp: DateTime.now().millisecondsSinceEpoch,
@@ -92,69 +87,75 @@ class _TenantDetailState extends State<TenantDetail> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const BackButton(color: Colors.white),
-        backgroundColor: Colors.green,
-        centerTitle: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: IconButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamed('/tenant_data',
-                      arguments: {'house_number': 1});
-                },
-                icon: const Icon(
-                  Icons.add,
-                  color: Colors.white,
-                )),
-          )
-        ],
-        title: const Text(
-          'Tenant detail',
-          style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-              letterSpacing: 1.6),
-        ),
+    return Container(
+      color: Colors.green,
+      child: SafeArea(
+        child: _dataRow.isNotEmpty
+            ? paginatedTableData(_dataRow, context)
+            : emptyView(),
       ),
-      body: _dataRow.isNotEmpty ? paginatedTableData(_dataRow) : emptyView(),
     );
   }
 }
 
-Widget paginatedTableData(List<TenantDetails> dataRow) {
-  return Column(
-    children: [
-      const Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(12.0),
-            child: Text(
-              'Tenant 1',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+Widget paginatedTableData(List<TenantDetails> dataRow, BuildContext context) {
+  return CustomScrollView(
+    slivers: [
+      SliverAppBar(
+        expandedHeight: 90,
+        collapsedHeight: 60,
+        pinned: true,
+        centerTitle: true,
+        backgroundColor: Colors.green,
+        leading: Align(
+          alignment: Alignment.bottomCenter,
+          child: IconButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Colors.white,
             ),
           ),
-          Padding(
-            padding: EdgeInsets.only(top: 6),
-            child: Text('Came on 12/12/1234',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-          ),
-        ],
+        ),
+        title: const Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: Text(
+                'Tenant 1',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 7),
+              child: Text(
+                'Came on 12/12/1234',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
+            ),
+          ],
+        ),
       ),
-      Expanded(
-          child: PaginatedDataTable(
-        rowsPerPage: 10,
-        columns: const [
-          DataColumn(label: Text('Date')),
-          DataColumn(label: Text('Reading')),
-          DataColumn(label: Text('Unit')),
-          DataColumn(label: Text('Total'))
-        ],
-        source: _DataSource(dataRow),
-      ))
+      SliverToBoxAdapter(
+        child: PaginatedDataTable(
+          rowsPerPage: 30,
+          columns: const [
+            DataColumn(label: Text('Date')),
+            DataColumn(label: Text('Reading')),
+            DataColumn(label: Text('Unit')),
+            DataColumn(label: Text('Total'))
+          ],
+          source: _DataSource(dataRow),
+        ),
+      )
     ],
   );
 }

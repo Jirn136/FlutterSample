@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_sample/models/house_people.dart';
-import 'package:flutter_sample/screens/tenant_detail.dart';
+import 'package:flutter_sample/database/database.dart';
+import 'package:flutter_sample/database/database_provider.dart';
+import 'package:flutter_sample/screens/bottom_sheet_add_tenant.dart';
 import 'package:flutter_sample/utils/common_widgets.dart';
 import 'package:flutter_sample/utils/constants.dart';
 import 'package:flutter_sample/utils/custom_items.dart';
 import 'package:flutter_sample/utils/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 class ListScreen extends StatefulWidget {
   const ListScreen({super.key});
@@ -14,38 +16,12 @@ class ListScreen extends StatefulWidget {
 }
 
 class _ListScreenState extends State<ListScreen> {
-  var housePeopleList = List.of([
-    HousePeople(
-        amount: 2000,
-        containsBalance: false,
-        houseNumber: 1,
-        peopleName: "sample 1",
-        powerUsage: 1234,
-        timeStamp: DateTime.now().millisecondsSinceEpoch,
-        total: 1234,
-        water: 200),
-    HousePeople(
-        amount: 2000,
-        containsBalance: false,
-        houseNumber: 2,
-        peopleName: "sample 2",
-        powerUsage: 1234,
-        timeStamp: DateTime.now().millisecondsSinceEpoch,
-        total: 1234,
-        water: 200),
-    HousePeople(
-        amount: 2000,
-        containsBalance: false,
-        houseNumber: 3,
-        peopleName: "sample 3",
-        powerUsage: 1234,
-        timeStamp: DateTime.now().millisecondsSinceEpoch,
-        total: 1234,
-        water: 200)
-  ]);
+  late AppDatabase database;
 
   @override
   Widget build(BuildContext context) {
+    database = Provider.of<DatabaseProvider>(context).database;
+    final tenantStream = database.getAllTenants();
     return Scaffold(
       appBar: AppBar(
         leading: null,
@@ -70,78 +46,111 @@ class _ListScreenState extends State<ListScreen> {
           )
         ],
       ),
-      body: housePeopleList.isNotEmpty ? listItems() : emptyView(),
-      floatingActionButton: fabButton(context),
+      body: StreamBuilder(
+        stream: tenantStream,
+        builder: (context, snapShot) {
+          if (snapShot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Colors.green,
+              ),
+            );
+          } else if (!snapShot.hasData || snapShot.data?.isEmpty == true) {
+            return emptyView();
+          } else if (snapShot.hasError) {
+            return const Center(child: Text('Unable to fetch data'));
+          } else {
+            return listItems(snapShot.data);
+          }
+        },
+      ),
+      floatingActionButton: fabButton(context, () {
+        showModalBottomSheet<void>(
+            isScrollControlled: true,
+            isDismissible: true,
+            context: context,
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(25))),
+            builder: (BuildContext context) {
+              return const BottomSheetAddTenant();
+            });
+      }),
     );
   }
 
-  Widget listItems() {
+  Widget listItems(List<Tenants>? tenantList) {
     return ListView.builder(
-      itemBuilder: (context, position) {
-        var people = housePeopleList[position];
-        return GestureDetector(
-          onTap: () {
-            Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const TenantDetail()));
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            child: Card(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 15, top: 10),
-                    child: Text(
-                      formatEpochTime(people.timeStamp),
-                      textAlign: TextAlign.right,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 15, top: 15),
-                    child: Text(
-                      people.houseNumber.toString(),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 15.0),
-                    child: Text(
-                      people.peopleName,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 8),
-                    child: Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 15),
-                          child: Text('${people.powerUsage} unit'),
+        itemCount: tenantList?.length,
+        itemBuilder: (context, position) {
+          var people = tenantList![position];
+          return Dismissible(
+            key: UniqueKey(),
+            onDismissed: (direction) {
+              database.deleteTenant(people.houseNumber);
+            },
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).pushNamed('/tenant_detail');
+              },
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                child: Card(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 15, top: 10),
+                        child: Text(
+                          formatEpochTime(people.date),
+                          textAlign: TextAlign.right,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        const Spacer(),
-                        Padding(
-                            padding: const EdgeInsets.only(right: 16),
-                            child: Text(
-                              '\u20B9 ${people.total}',
-                              style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.w700),
-                            ))
-                      ],
-                    ),
-                  )
-                ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 15, top: 15),
+                        child: Text(
+                          people.houseNumber.toString(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 15.0),
+                        child: Text(
+                          people.tenantName,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 10, bottom: 8),
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(left: 15),
+                              child: Text('0 unit'),
+                            ),
+                            Spacer(),
+                            Padding(
+                                padding: EdgeInsets.only(right: 16),
+                                child: Text(
+                                  '\u20B9 0',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700),
+                                ))
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-        );
-      },
-      itemCount: housePeopleList.length,
-    );
+          );
+        });
   }
 
   Widget customDialogText(String content) {
