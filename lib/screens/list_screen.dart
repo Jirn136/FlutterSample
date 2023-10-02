@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sample/database/database.dart';
 import 'package:flutter_sample/database/database_provider.dart';
-import 'package:flutter_sample/screens/bottom_sheet_add_tenant.dart';
+import 'package:flutter_sample/screens/bottomSheet/bottom_sheet_add_tenant.dart';
 import 'package:flutter_sample/utils/common_widgets.dart';
 import 'package:flutter_sample/utils/constants.dart';
 import 'package:flutter_sample/utils/custom_items.dart';
@@ -90,7 +90,8 @@ class _ListScreenState extends State<ListScreen> {
             },
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).pushNamed('/tenant_detail');
+                Navigator.of(context).pushNamed('/tenant_detail',
+                    arguments: {'house_number': people.houseNumber});
               },
               child: Padding(
                 padding:

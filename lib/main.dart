@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sample/database/database_provider.dart';
-import 'package:flutter_sample/screens/bottom_sheet_add_tenant.dart';
+import 'package:flutter_sample/screens/bottomSheet/bottom_sheet_add_tenant.dart';
 import 'package:flutter_sample/screens/list_screen.dart';
 import 'package:flutter_sample/screens/login.dart';
 import 'package:flutter_sample/screens/register.dart';

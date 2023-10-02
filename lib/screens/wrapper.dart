@@ -11,6 +11,7 @@ class Wrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     PreferenceUtils pref = PreferenceUtils();
     bool isChecked = pref.getBoolean(Constants.isChecked);
-    return isChecked ? const ListScreen() : const Login();
+    // return isChecked ? const ListScreen() : const Login();
+    return const ListScreen();
   }
 }

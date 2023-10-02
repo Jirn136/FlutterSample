@@ -17,6 +17,18 @@ Widget emptyView() {
   );
 }
 
+void closeBottomSheet(BuildContext context) {
+  Navigator.of(context).pop();
+}
+
+Widget customProgressBar(BuildContext context){
+  return const Center(
+    child: CircularProgressIndicator(
+      color: Colors.green,
+    ),
+  );
+}
+
 Widget fabButton(BuildContext context, VoidCallback callback) {
   return Padding(
     padding: const EdgeInsets.all(16.0),
@@ -27,7 +39,8 @@ Widget fabButton(BuildContext context, VoidCallback callback) {
         backgroundColor: Colors.green,
         shape: const CircleBorder(),
         onPressed: () {
-          callback();},
+          callback();
+        },
         child: const Icon(Icons.add, size: 28, color: Colors.white),
       ),
     ),

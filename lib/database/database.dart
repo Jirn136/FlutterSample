@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter_sample/models/tenant_details.dart';
 import 'package:flutter_sample/models/tenant_info.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -13,6 +14,8 @@ class TenantDetails extends Table {
   IntColumn get id => integer().autoIncrement()();
 
   IntColumn get houseNumber => integer()();
+
+  IntColumn get timeStamp => integer()();
 
   IntColumn get reading => integer()();
 
@@ -48,14 +51,27 @@ class AppDatabase extends _$AppDatabase {
     return insertedData;
   }
 
+  Future<Tenants> returnTenantInfo(int houseNumber) async {
+    final query = select(tenantInfo)
+      ..where((tbl) => tbl.houseNumber.equals(houseNumber));
+    return await query.getSingle();
+  }
+
   Stream<List<Tenants>> getAllTenants() {
     return select(tenantInfo).watch();
   }
 
-  Future<int> deleteTenant(int houseNumber) async {
-    return await (delete(tenantInfo)
-          ..where((tbl) => tbl.houseNumber.equals(houseNumber)))
-        .go();
+  Future<void> deleteTenant(int houseNumber) {
+    return transaction(
+      () async {
+        await (delete(tenantInfo)
+              ..where((tbl) => tbl.houseNumber.equals(houseNumber)))
+            .go();
+        await (delete(tenantDetails)
+              ..where((tbl) => tbl.houseNumber.equals(houseNumber)))
+            .go();
+      },
+    );
   }
 
   Future<List<TenantDetail>> getAllTenantDetails() =>
@@ -63,26 +79,33 @@ class AppDatabase extends _$AppDatabase {
 
   Stream<List<TenantDetail>> getTenantDetails(int houseNumber) {
     return (select(tenantDetails)
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.timeStamp, mode: OrderingMode.desc)
+          ])
           ..where((t) => t.houseNumber.equals(houseNumber)))
         .watch();
   }
 
-  Future<int> addTenantDetail(
-      int houseNumber, int reading, int unit, int total) {
-    return into(tenantDetails).insert(TenantDetailsCompanion(
-        houseNumber: Value(houseNumber),
-        reading: Value(reading),
-        unit: Value(unit),
-        total: Value(total)));
+  Future<int> addTenantDetail(TenantReading reading) async {
+    return await into(tenantDetails).insert(TenantDetailsCompanion(
+        houseNumber: Value(reading.houseNumber),
+        timeStamp: Value(reading.timeStamp),
+        reading: Value(reading.reading),
+        unit: Value(reading.unit),
+        total: Value(reading.total)));
   }
 
-  Stream<TenantDetail> getLastReadingData(int houseNumber) {
-    return (select(tenantDetails)
-          ..orderBy([
-            (t) => OrderingTerm(expression: t.reading, mode: OrderingMode.desc)
-          ])
-          ..where((t) => t.houseNumber.equals(houseNumber)))
-        .watchSingle();
+  Future<int?> getLastData(int houseNumber) async {
+    final query = select(tenantDetails)
+      ..orderBy(
+          [(t) => OrderingTerm(expression: t.reading, mode: OrderingMode.desc)])
+      ..where((t) => t.houseNumber.equals(houseNumber))
+      ..limit(1); // Limit the result to 1 row to get the last reading.
+
+    final result = await query.getSingleOrNull();
+
+    return result?.reading;
   }
 }
 

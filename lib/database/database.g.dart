@@ -275,6 +275,12 @@ class $TenantDetailsTable extends TenantDetails
   late final GeneratedColumn<int> houseNumber = GeneratedColumn<int>(
       'house_number', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _timeStampMeta =
+      const VerificationMeta('timeStamp');
+  @override
+  late final GeneratedColumn<int> timeStamp = GeneratedColumn<int>(
+      'time_stamp', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _readingMeta =
       const VerificationMeta('reading');
   @override
@@ -292,7 +298,8 @@ class $TenantDetailsTable extends TenantDetails
       'total', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [id, houseNumber, reading, unit, total];
+  List<GeneratedColumn> get $columns =>
+      [id, houseNumber, timeStamp, reading, unit, total];
   @override
   String get aliasedName => _alias ?? 'tenant_details';
   @override
@@ -312,6 +319,12 @@ class $TenantDetailsTable extends TenantDetails
               data['house_number']!, _houseNumberMeta));
     } else if (isInserting) {
       context.missing(_houseNumberMeta);
+    }
+    if (data.containsKey('time_stamp')) {
+      context.handle(_timeStampMeta,
+          timeStamp.isAcceptableOrUnknown(data['time_stamp']!, _timeStampMeta));
+    } else if (isInserting) {
+      context.missing(_timeStampMeta);
     }
     if (data.containsKey('reading')) {
       context.handle(_readingMeta,
@@ -344,6 +357,8 @@ class $TenantDetailsTable extends TenantDetails
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       houseNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}house_number'])!,
+      timeStamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}time_stamp'])!,
       reading: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}reading'])!,
       unit: attachedDatabase.typeMapping
@@ -362,12 +377,14 @@ class $TenantDetailsTable extends TenantDetails
 class TenantDetail extends DataClass implements Insertable<TenantDetail> {
   final int id;
   final int houseNumber;
+  final int timeStamp;
   final int reading;
   final int unit;
   final int total;
   const TenantDetail(
       {required this.id,
       required this.houseNumber,
+      required this.timeStamp,
       required this.reading,
       required this.unit,
       required this.total});
@@ -376,6 +393,7 @@ class TenantDetail extends DataClass implements Insertable<TenantDetail> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['house_number'] = Variable<int>(houseNumber);
+    map['time_stamp'] = Variable<int>(timeStamp);
     map['reading'] = Variable<int>(reading);
     map['unit'] = Variable<int>(unit);
     map['total'] = Variable<int>(total);
@@ -386,6 +404,7 @@ class TenantDetail extends DataClass implements Insertable<TenantDetail> {
     return TenantDetailsCompanion(
       id: Value(id),
       houseNumber: Value(houseNumber),
+      timeStamp: Value(timeStamp),
       reading: Value(reading),
       unit: Value(unit),
       total: Value(total),
@@ -398,6 +417,7 @@ class TenantDetail extends DataClass implements Insertable<TenantDetail> {
     return TenantDetail(
       id: serializer.fromJson<int>(json['id']),
       houseNumber: serializer.fromJson<int>(json['houseNumber']),
+      timeStamp: serializer.fromJson<int>(json['timeStamp']),
       reading: serializer.fromJson<int>(json['reading']),
       unit: serializer.fromJson<int>(json['unit']),
       total: serializer.fromJson<int>(json['total']),
@@ -409,6 +429,7 @@ class TenantDetail extends DataClass implements Insertable<TenantDetail> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'houseNumber': serializer.toJson<int>(houseNumber),
+      'timeStamp': serializer.toJson<int>(timeStamp),
       'reading': serializer.toJson<int>(reading),
       'unit': serializer.toJson<int>(unit),
       'total': serializer.toJson<int>(total),
@@ -416,10 +437,16 @@ class TenantDetail extends DataClass implements Insertable<TenantDetail> {
   }
 
   TenantDetail copyWith(
-          {int? id, int? houseNumber, int? reading, int? unit, int? total}) =>
+          {int? id,
+          int? houseNumber,
+          int? timeStamp,
+          int? reading,
+          int? unit,
+          int? total}) =>
       TenantDetail(
         id: id ?? this.id,
         houseNumber: houseNumber ?? this.houseNumber,
+        timeStamp: timeStamp ?? this.timeStamp,
         reading: reading ?? this.reading,
         unit: unit ?? this.unit,
         total: total ?? this.total,
@@ -429,6 +456,7 @@ class TenantDetail extends DataClass implements Insertable<TenantDetail> {
     return (StringBuffer('TenantDetail(')
           ..write('id: $id, ')
           ..write('houseNumber: $houseNumber, ')
+          ..write('timeStamp: $timeStamp, ')
           ..write('reading: $reading, ')
           ..write('unit: $unit, ')
           ..write('total: $total')
@@ -437,13 +465,15 @@ class TenantDetail extends DataClass implements Insertable<TenantDetail> {
   }
 
   @override
-  int get hashCode => Object.hash(id, houseNumber, reading, unit, total);
+  int get hashCode =>
+      Object.hash(id, houseNumber, timeStamp, reading, unit, total);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is TenantDetail &&
           other.id == this.id &&
           other.houseNumber == this.houseNumber &&
+          other.timeStamp == this.timeStamp &&
           other.reading == this.reading &&
           other.unit == this.unit &&
           other.total == this.total);
@@ -452,12 +482,14 @@ class TenantDetail extends DataClass implements Insertable<TenantDetail> {
 class TenantDetailsCompanion extends UpdateCompanion<TenantDetail> {
   final Value<int> id;
   final Value<int> houseNumber;
+  final Value<int> timeStamp;
   final Value<int> reading;
   final Value<int> unit;
   final Value<int> total;
   const TenantDetailsCompanion({
     this.id = const Value.absent(),
     this.houseNumber = const Value.absent(),
+    this.timeStamp = const Value.absent(),
     this.reading = const Value.absent(),
     this.unit = const Value.absent(),
     this.total = const Value.absent(),
@@ -465,16 +497,19 @@ class TenantDetailsCompanion extends UpdateCompanion<TenantDetail> {
   TenantDetailsCompanion.insert({
     this.id = const Value.absent(),
     required int houseNumber,
+    required int timeStamp,
     required int reading,
     required int unit,
     required int total,
   })  : houseNumber = Value(houseNumber),
+        timeStamp = Value(timeStamp),
         reading = Value(reading),
         unit = Value(unit),
         total = Value(total);
   static Insertable<TenantDetail> custom({
     Expression<int>? id,
     Expression<int>? houseNumber,
+    Expression<int>? timeStamp,
     Expression<int>? reading,
     Expression<int>? unit,
     Expression<int>? total,
@@ -482,6 +517,7 @@ class TenantDetailsCompanion extends UpdateCompanion<TenantDetail> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (houseNumber != null) 'house_number': houseNumber,
+      if (timeStamp != null) 'time_stamp': timeStamp,
       if (reading != null) 'reading': reading,
       if (unit != null) 'unit': unit,
       if (total != null) 'total': total,
@@ -491,12 +527,14 @@ class TenantDetailsCompanion extends UpdateCompanion<TenantDetail> {
   TenantDetailsCompanion copyWith(
       {Value<int>? id,
       Value<int>? houseNumber,
+      Value<int>? timeStamp,
       Value<int>? reading,
       Value<int>? unit,
       Value<int>? total}) {
     return TenantDetailsCompanion(
       id: id ?? this.id,
       houseNumber: houseNumber ?? this.houseNumber,
+      timeStamp: timeStamp ?? this.timeStamp,
       reading: reading ?? this.reading,
       unit: unit ?? this.unit,
       total: total ?? this.total,
@@ -511,6 +549,9 @@ class TenantDetailsCompanion extends UpdateCompanion<TenantDetail> {
     }
     if (houseNumber.present) {
       map['house_number'] = Variable<int>(houseNumber.value);
+    }
+    if (timeStamp.present) {
+      map['time_stamp'] = Variable<int>(timeStamp.value);
     }
     if (reading.present) {
       map['reading'] = Variable<int>(reading.value);
@@ -529,6 +570,7 @@ class TenantDetailsCompanion extends UpdateCompanion<TenantDetail> {
     return (StringBuffer('TenantDetailsCompanion(')
           ..write('id: $id, ')
           ..write('houseNumber: $houseNumber, ')
+          ..write('timeStamp: $timeStamp, ')
           ..write('reading: $reading, ')
           ..write('unit: $unit, ')
           ..write('total: $total')
